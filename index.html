@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OS Monitor Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #0f0f1a;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+        }
+        .container {
+            background-color: #1a1a2e;
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #00ffcc;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+        }
+        .ram-value {
+            font-size: 3rem;
+            margin: 20px 0;
+            color: #ff0077;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>SYSTEM PERFORMANCE MONITOR</h1>
+        <p>Live RAM Data from C Server</p>
+        <div class="ram-value" id="val">--%</div>
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(20).fill(''),
+                datasets: [{
+                    label: 'RAM Usage (%)',
+                    data: Array(20).fill(0),
+                    borderColor: '#00ffcc',
+                    tension: 0.3,
+                    fill: true,
+                    backgroundColor: 'rgba(0, 255, 204, 0.1)'
+                }]
+            },
+            options: { scales: { y: { min: 0, max: 100 } }, animation: false }
+        });
+
+        async function updateData() {
+            try {
+                // Fetch from the C server
+                const res = await fetch('http://127.0.0.1:8080');
+                const data = await res.json();
+                
+                // Update UI
+                document.getElementById('val').innerText = data.ram_usage + '%';
+                
+                // Update Chart
+                chart.data.datasets[0].data.push(data.ram_usage);
+                chart.data.datasets[0].data.shift();
+                chart.update();
+            } catch (e) {
+                document.getElementById('val').innerText = "OFFLINE";
+            }
+        }
+
+        setInterval(updateData, 1000);
+    </script>
+</body>
+</html>
