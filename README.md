@@ -1,4 +1,4 @@
-# Real-Time OS Resource Monitor (C & JavaScript)
+# Real-Time OS Resource Monitor (C & HTML)
 
 I developed this project to explore Socket Programming in C and bridge the gap between low-level system data and modern web-based visualization. 
 
